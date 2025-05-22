@@ -1,47 +1,91 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
+  import { onDestroy, onMount } from 'svelte';
+
+  let startTime: Date;
+  let currentTime: Date = new Date();
+  let intervalId: number;
+
+  onMount(() => {
+    startTime = new Date();
+    currentTime = new Date(); // Initialize currentTime as well
+    // Update time every second
+    intervalId = setInterval(() => {
+      currentTime = new Date();
+    }, 1000);
+  });
+
+  onDestroy(() => {
+    // Clear the interval when the component is destroyed
+    if (intervalId) {
+      clearInterval(intervalId);
+    }
+  });
+
+  // Helper function to format a Date object to a time string (HH:MM:SS)
+  function formatTime(date: Date): string {
+    if (!date) return '...'; // Handle case where date might be undefined initially
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  // Helper function to format the duration between two dates
+  function formatDuration(start: Date, end: Date): string {
+    if (!start) return 'Calculating...';
+    const diffMs = end.getTime() - start.getTime();
+    
+    if (diffMs < 0) return 'Calculating...'; // Should not happen if startTime is set correctly
+
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    // Pad with leading zeros
+    const paddedHours = String(hours).padStart(2, '0');
+    const paddedMinutes = String(minutes).padStart(2, '0');
+    const paddedSeconds = String(seconds).padStart(2, '0');
+
+    return `${paddedHours}h ${paddedMinutes}m ${paddedSeconds}s`;
+  }
 </script>
 
 <main>
-  <div>
-    <a href="https://vite.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-  <h1>Vite + Svelte</h1>
-
-  <div class="card">
-    <Counter />
-  </div>
-
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
+  {#if startTime}
+    <div class="time-info">
+      <p><strong>Started:</strong> {formatTime(startTime)}</p>
+      <p><strong>Elapsed:</strong> {formatDuration(startTime, currentTime)}</p>
+    </div>
+  {:else}
+    <p>Initializing timer...</p>
+  {/if}
 </main>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
+  main {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Use viewport height to fill the small window */
+    padding: 1em;
+    box-sizing: border-box;
+    text-align: center;
+    background-color: #f0f0f0; /* Light background for the window */
+    color: #333; /* Dark text for readability */
   }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
+
+  .time-info p {
+    margin: 0.5em 0;
+    font-size: 1.1em; /* Slightly larger font for clarity */
   }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
+
+  .time-info strong {
+    margin-right: 0.5em;
   }
-  .read-the-docs {
-    color: #888;
+
+  /* Remove default body margin if any, to ensure main fills the window */
+  :global(body) {
+    margin: 0;
+    overflow: hidden; /* Prevent scrollbars in the small window */
   }
 </style>
