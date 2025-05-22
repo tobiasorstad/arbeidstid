@@ -3,7 +3,7 @@
 
   let startTime: Date;
   let currentTime: Date = new Date();
-  let intervalId: number;
+  let intervalId: NodeJS.Timeout;
 
   onMount(() => {
     startTime = new Date();
@@ -66,7 +66,6 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Use viewport height to fill the small window */
     padding: 1em;
     box-sizing: border-box;
     text-align: center;
