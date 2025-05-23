@@ -95,13 +95,25 @@
 
     return `${paddedHours}h ${paddedMinutes}m ${paddedSeconds}s`;
   }
+
+  // Helper function to format the duration as decimal hours
+  function formatDurationAsDecimalHours(start: Date, end: Date): string {
+    if (!start) return 'Calculating...';
+    const diffMs = end.getTime() - start.getTime();
+
+    if (diffMs < 0) return 'Calculating...';
+
+    const hours = diffMs / (1000 * 60 * 60);
+    const roundedHours = Math.round(hours * 10) / 10;
+    return `${roundedHours.toFixed(1)} timer`;
+  }
 </script>
 
 <main>
   {#if startTime}
     <div class="time-info">
       <p>
-        <strong>Started:</strong>
+        <strong>Startet:</strong>
         {#if !editingStartTime}
           {formatTime(startTime)}
           <button on:click={toggleEditing}>✏️</button>
@@ -111,7 +123,8 @@
           <button on:click={toggleEditing}>❌</button>
         {/if}
       </p>
-      <p><strong>Elapsed:</strong> {formatDuration(startTime, currentTime)}</p>
+      <p><strong>Tid:</strong> {formatDuration(startTime, currentTime)}</p>
+      <p><strong>Current:</strong> {formatDurationAsDecimalHours(startTime, currentTime)}</p>
     </div>
   {:else}
     <p>Initializing timer...</p>
