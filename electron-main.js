@@ -9,6 +9,7 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 400,
     height: 400,
+    resizable: false,
     webPreferences: {
       preload: path.join(__dirname, "electron-preload.js"), // We'll create this later if needed for IPC
       contextIsolation: true, // Recommended for security
