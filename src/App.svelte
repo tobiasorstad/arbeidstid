@@ -6,7 +6,26 @@
   let intervalId: NodeJS.Timeout;
 
   onMount(() => {
-    startTime = new Date();
+    const storedStartTime = localStorage.getItem('startTime');
+    if (storedStartTime) {
+      const parsedStartTime = new Date(storedStartTime);
+      const today = new Date();
+      // Check if the stored date is today
+      if (parsedStartTime.getDate() === today.getDate() &&
+          parsedStartTime.getMonth() === today.getMonth() &&
+          parsedStartTime.getFullYear() === today.getFullYear()) {
+        startTime = parsedStartTime;
+      } else {
+        // If not today, start a new timer
+        startTime = new Date();
+        localStorage.setItem('startTime', startTime.toISOString());
+      }
+    } else {
+      // If no start time is stored, start a new timer
+      startTime = new Date();
+      localStorage.setItem('startTime', startTime.toISOString());
+    }
+
     currentTime = new Date(); // Initialize currentTime as well
     // Update time every second
     intervalId = setInterval(() => {
@@ -18,6 +37,10 @@
     // Clear the interval when the component is destroyed
     if (intervalId) {
       clearInterval(intervalId);
+    }
+    // Save the current startTime to localStorage when the component is destroyed
+    if (startTime) {
+      localStorage.setItem('startTime', startTime.toISOString());
     }
   });
 
